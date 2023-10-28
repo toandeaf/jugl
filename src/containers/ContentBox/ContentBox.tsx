@@ -1,23 +1,31 @@
 import './styles.css';
-import { FC } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { tauri } from '@tauri-apps/api';
+import PullRequest from './PullRequest.tsx';
 
 interface Props {
   title: string;
 }
+
+const testThis = async (): Promise<Array<PullRequest>> => {
+  return await tauri.invoke('get_prs');
+};
+
 const ContentBox: FC<Props> = ({ title }) => {
-  const testThis = async () => {
-    const dad = await tauri.invoke('get_prs');
-    console.log(dad);
-  };
+  const [vals, setVals] = useState<Array<PullRequest>>([]);
+
+  useEffect(() => {
+    testThis().then(prs => {
+      setVals(prs);
+    });
+  }, []);
 
   return (
     <div className='box'>
       <h1>{title}</h1>
-      <input type='button' value='About' onClick={testThis}></input>
-      <input type='button' value='Programming Stuff'></input>
-      <input type='button' value='Tiny CV'></input>
-      <input type='button' value='Blog?'></input>
+      {vals.map(pr => (
+        <PullRequest pr={pr} />
+      ))}
     </div>
   );
 };

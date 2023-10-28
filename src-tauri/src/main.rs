@@ -1,48 +1,52 @@
+#![feature(iter_collect_into)]
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use octocrab::params;
+use lazy_static::lazy_static;
+use octocrab::Octocrab;
 
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
-
-#[tauri::command]
-async fn get_prs() -> Result<String, ()> {
-    let octocrab = octocrab::instance();
-
-    // Returns the first page of all issues.
-    let page = octocrab
-        .pulls("toandeaf", "jugl")
-        .list()
-        .head("master")
-        .state(params::State::All)
-        .per_page(100)
-        .page(5u32)
-        // Send the request
-        .send()
-        .await
-        .unwrap();
-
-    let name = octocrab
-        .repos("toandeaf", "jugl")
-        .get()
-        .await
-        .unwrap()
-        .default_branch
-        .unwrap_or(String::from("reeb"));
-
-    println!("Value is {}", name);
-
-    Ok(String::from("PR Test"))
+lazy_static! {
+    static ref GITHUB_CLIENT: Octocrab = Octocrab::builder()
+        .basic_auth("PUT_DA_USERNAME".to_string(), "PUT_DA_PASSWORD".to_string())
+        .build()
+        .unwrap_or(Octocrab::default());
 }
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![greet])
         .invoke_handler(tauri::generate_handler![get_prs])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+#[derive(serde::Serialize)]
+struct PullRequest {
+    title: String,
+    last_commit: String,
+    last_review: String,
+}
+
+#[tauri::command]
+async fn get_prs() -> Result<Vec<PullRequest>, ()> {
+    // Returns the first page of all issues.
+    let page = GITHUB_CLIENT
+        .pulls("toandeaf", "jugl")
+        .list()
+        .per_page(10)
+        .send()
+        .await
+        .unwrap();
+
+    let mut prs_vec: Vec<PullRequest> = Vec::with_capacity(page.items.len());
+
+    page.items
+        .iter()
+        .map(|pr| PullRequest {
+            title: pr.title.clone().unwrap(),
+            last_review: String::from("There"),
+            last_commit: String::from("Before"),
+        })
+        .collect_into(&mut prs_vec);
+
+    Ok(prs_vec)
 }

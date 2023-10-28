@@ -1572,6 +1572,7 @@ dependencies = [
 name = "jugl"
 version = "0.0.0"
 dependencies = [
+ "lazy_static",
  "octocrab",
  "reqwest",
  "serde",
