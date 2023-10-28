@@ -6,12 +6,12 @@
     min-width: 500px;
     height: 500px;
 
+    background-color: var(--brutal-green);
     border: 2px solid black;
+    box-shadow: 10px 10px 0 black;
     border-radius: 3px;
     margin: 4px;
-    background-color: var(--brutal-green);
     padding: 20px;
-    box-shadow: 10px 10px 0 black;
 }
 
 .prTitle {
