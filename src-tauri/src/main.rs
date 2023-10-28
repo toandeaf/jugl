@@ -2,17 +2,26 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use dotenv::dotenv;
 use lazy_static::lazy_static;
 use octocrab::Octocrab;
+use std::env;
 
 lazy_static! {
-    static ref GITHUB_CLIENT: Octocrab = Octocrab::builder()
-        .basic_auth("PUT_DA_USERNAME".to_string(), "PUT_DA_PASSWORD".to_string())
-        .build()
-        .unwrap_or(Octocrab::default());
+    static ref GITHUB_CLIENT: Octocrab = {
+        dotenv().ok();
+        Octocrab::builder()
+            .basic_auth(
+                env::var("GITHUB_USERNAME").unwrap(),
+                env::var("GITHUB_PASSWORD").unwrap(),
+            )
+            .build()
+            .unwrap_or(Octocrab::default())
+    };
 }
 
 fn main() {
+    dotenv().ok();
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![get_prs])
         .run(tauri::generate_context!())
