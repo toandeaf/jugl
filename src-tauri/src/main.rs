@@ -23,7 +23,7 @@ async fn get_prs() -> Result<String, ()> {
 
     println!("Value is {}", page.first.unwrap().path());
 
-    Ok(String::from("Test"))
+    Ok(String::from("PR Test"))
 }
 
 fn main() {
