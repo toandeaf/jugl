@@ -1,34 +1,32 @@
+#![feature(iter_collect_into)]
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use octocrab::params;
+mod pull_requests;
 
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
+use crate::pull_requests::get_prs;
+use dotenv::dotenv;
+use lazy_static::lazy_static;
+use octocrab::Octocrab;
+use std::env;
 
-#[tauri::command]
-async fn get_prs() -> Result<String, ()> {
-    let octocrab = octocrab::instance();
-    // Returns the first page of all issues.
-    let page = octocrab
-        .pulls("toandeaf", "sand")
-        .list()
-        .state(params::State::All)
-        .send()
-        .await
-        .unwrap();
-
-    println!("Value is {}", page.first.unwrap().path());
-
-    Ok(String::from("Test"))
+lazy_static! {
+    static ref GITHUB_CLIENT: Octocrab = {
+        dotenv().ok();
+        Octocrab::builder()
+            .basic_auth(
+                env::var("GITHUB_USERNAME").unwrap(),
+                env::var("GITHUB_PASSWORD").unwrap(),
+            )
+            .build()
+            .unwrap_or(Octocrab::default())
+    };
+    static ref OWNER: String = env::var("OWNER").unwrap();
+    static ref REPO: String = env::var("REPO").unwrap();
 }
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![greet])
         .invoke_handler(tauri::generate_handler![get_prs])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
