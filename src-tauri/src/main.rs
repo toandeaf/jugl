@@ -12,16 +12,29 @@ fn greet(name: &str) -> String {
 #[tauri::command]
 async fn get_prs() -> Result<String, ()> {
     let octocrab = octocrab::instance();
+
     // Returns the first page of all issues.
     let page = octocrab
-        .pulls("toandeaf", "sand")
+        .pulls("toandeaf", "jugl")
         .list()
+        .head("master")
         .state(params::State::All)
+        .per_page(100)
+        .page(5u32)
+        // Send the request
         .send()
         .await
         .unwrap();
 
-    println!("Value is {}", page.first.unwrap().path());
+    let name = octocrab
+        .repos("toandeaf", "jugl")
+        .get()
+        .await
+        .unwrap()
+        .default_branch
+        .unwrap_or(String::from("reeb"));
+
+    println!("Value is {}", name);
 
     Ok(String::from("PR Test"))
 }
