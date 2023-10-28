@@ -1,0 +1,54 @@
+.box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    min-width: 300px;
+    height: 500px;
+
+    border: 2px solid black;
+    border-radius: 3px;
+    margin: 4px;
+    background-color: var(--brutal-green);
+    padding: 20px;
+    box-shadow: 10px 10px 0 black;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    background: var(--brutal-orange);
+    border: 2px solid black;
+    /*color: var(--text2);*/
+    margin: 4px;
+    border-radius: 4px;
+    font-weight: 800;
+
+    cursor: pointer;
+    box-shadow: 5px 2px 0 rgba(0, 0, 0, 0.9);
+    transition: transform 0.2s, box-shadow 0.2s; /* Smooth transition for the hover effect */
+}
+
+input:hover {
+    box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.1); /* Reduce the shadow to make it appear pressed */
+    transform: translateY(2px); /* Slightly shift the button downward */
+}
+
+.weeBox {
+    width: 100%;
+    background-color: var(--brutal-orange);
+    box-shadow: 4px 2px 0 rgba(0, 0, 0, 0.9);
+    border: 2px solid black;
+    border-radius: 4px 4px 4px 4px;
+    display: flex;
+    justify-content: space-evenly;
+}
+
+
+.boxHolder {
+    width: 100%;
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    padding: 0 4px 0 4px;
+}
